@@ -1,31 +1,28 @@
 using AdventureCore;
 using KinematicCharacterController;
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class KinematicMovement : MovementBase, ICharacterController
+public class KinematicMovement : MovementBasePersisted, ICharacterController
 {
+    [Header("General")]
     public KinematicCharacterMotor Motor;
-    [Tooltip("this transform is rotated in the direction of movement, usually the transform of the visual model")]
-    public Transform Pivot;
     [Tooltip("transform used to transform input so when the player pushes left the character moves left relative to the camera")]
     public Transform Camera;
 
-    [Header("Speed")]
+    [Header("Settings")]
     public float MaxStableMoveSpeed = 5;
     public float StableMovementSharpness = 15;
     public float OrientationSharpness = 10;
     public float JumpUpSpeed = 10f;
-    [Header("Actions")]
-    [Tooltip("optional action that will be performed when the direction suddenly changes")]
-    public CharacterActionBase Turn;
 
     public Vector3 Gravity = new Vector3(0, -30f, 0);
 
     public float SpeedFactorForward { get; private set; }
     public float SpeedFactorSideways { get; private set; }
-    public bool IsGrounded => Motor.GroundingStatus.IsStableOnGround;
+    public bool IsGrounded => Time.frameCount < 5 || Motor.GroundingStatus.IsStableOnGround;
     public bool IsSprinting { get; private set; }
 
     public event Action<float> Fallen;
@@ -63,10 +60,28 @@ public class KinematicMovement : MovementBase, ICharacterController
 
     private Vector3 _internalVelocityAdd = Vector3.zero;
 
-    private void Start()
+    private bool _isAligning;
+
+    protected override void Awake()
     {
         Motor.CharacterController = this;
 
+        if (Persister && Persister.Check(PERSISTENCE_SUB_KEY))
+        {
+            var data = Persister.Get<MovementData>(PERSISTENCE_SUB_KEY);
+
+            if (Motor.Transform)
+                Motor.SetPositionAndRotation(data.Position, data.Rotation);
+            else
+                Motor.transform.SetPositionAndRotation(data.Position, data.Rotation);
+
+            if (CameraPivot)
+                CameraPivot.rotation = data.CameraRotation;
+        }
+    }
+
+    private void Start()
+    {
         if (!Camera)
             Camera = UnityEngine.Camera.main.transform;
     }
@@ -93,7 +108,6 @@ public class KinematicMovement : MovementBase, ICharacterController
     public void OnSprint(InputValue value) => OnSprint(value.isPressed);
     public void OnSprint(bool value)
     {
-        Debug.Log(value);
         if (IsSprintingSuspended)
             return;
 
@@ -131,6 +145,58 @@ public class KinematicMovement : MovementBase, ICharacterController
         get => Motor.TransientRotation; set => Motor.SetRotation(value);
     }
 
+    public override void Align(Vector3 direction)
+    {
+        base.Align(direction);
+
+        StartCoroutine(alignCharacter(direction));
+    }
+    public override void AlignToInput()
+    {
+        base.AlignToInput();
+
+        StartCoroutine(alignCharacter(_inputDirection));
+    }
+    public override void AlignToTarget()
+    {
+        base.AlignToTarget();
+
+        if (Target)
+            StartCoroutine(alignCharacter(Target.position - transform.position));
+        else
+            StartCoroutine(alignCharacter(_inputDirection));
+    }
+    private IEnumerator alignCharacter(Vector3 direction)
+    {
+        _isAligning = true;
+
+        var start = Rotation.eulerAngles.y;
+        var target = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+
+        return tween(t =>
+        {
+            Rotation = Quaternion.Euler(0.0f, Mathf.LerpAngle(start, target, t), 0.0f);
+        }, () => _isAligning = false, 0.1f, true);
+    }
+
+    public override void MoveCharacter(Transform target)
+    {
+        base.MoveCharacter(transform);
+
+        StartCoroutine(moveCharacter(target));
+    }
+    private IEnumerator moveCharacter(Transform target)
+    {
+        var startPosition = Position;
+        var startRotation = Rotation;
+
+        return tween(t =>
+        {
+            Position = Vector3.Slerp(startPosition, target.position, t);
+            Rotation = Quaternion.Slerp(startRotation, target.rotation, t);
+        }, null, 0.1f, true);
+    }
+
     public override void PropelCharacter(Vector3 value)
     {
         base.PropelCharacter(value);
@@ -157,10 +223,13 @@ public class KinematicMovement : MovementBase, ICharacterController
         if (!IsControlSuspended)
         {
             if (HasTarget)
-                _characterDirection = (Target.position - Pivot.position).NormalizeXZ();
+                _characterDirection = (Target.position - Position).NormalizeXZ();
             else
                 _characterDirection = _moveDirection;
         }
+
+        if (_isAligning)
+            return;
 
         if (IsRotationSuspended)
         {
@@ -185,28 +254,27 @@ public class KinematicMovement : MovementBase, ICharacterController
                 currentVelocity = _rootMotionPositionDelta / deltaTime;
             else
                 currentVelocity = Vector3.zero;
+            return;
         }
-        else
+
+        if (Motor.GroundingStatus.IsStableOnGround)
         {
-            if (Motor.GroundingStatus.IsStableOnGround)
+            //SPEED
+            var speedFactor = _input.magnitude * (IsSprinting ? 2.0f : 1.0f) * SpeedMultiplier;
+
+            if (HasTarget)
             {
-                //SPEED
-                var speedFactor = _input.magnitude * (IsSprinting ? 2.0f : 1.0f) * SpeedMultiplier;
-
-                if (HasTarget)
-                {
-                    SpeedFactorForward = speedFactor * _inputAdopted.normalized.y;
-                    SpeedFactorSideways = speedFactor * _inputAdopted.normalized.x;
-                }
-                else
-                {
-                    SpeedFactorForward = speedFactor;
-                    SpeedFactorSideways = 0f;
-                }
-
-                //POSITION
-                currentVelocity = Vector3.Lerp(currentVelocity, _moveDirection * speedFactor * MaxStableMoveSpeed, 1 - Mathf.Exp(-StableMovementSharpness * deltaTime));
+                SpeedFactorForward = speedFactor * _inputAdopted.normalized.y;
+                SpeedFactorSideways = speedFactor * _inputAdopted.normalized.x;
             }
+            else
+            {
+                SpeedFactorForward = speedFactor;
+                SpeedFactorSideways = 0f;
+            }
+
+            //POSITION
+            currentVelocity = Vector3.Lerp(currentVelocity, _moveDirection * speedFactor * MaxStableMoveSpeed, 1 - Mathf.Exp(-StableMovementSharpness * deltaTime));
         }
 
         if (_internalVelocityAdd.sqrMagnitude > 0f)
