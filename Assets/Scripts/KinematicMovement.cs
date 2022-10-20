@@ -11,6 +11,7 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
     public KinematicCharacterMotor Motor;
     [Tooltip("transform used to transform input so when the player pushes left the character moves left relative to the camera")]
     public Transform Camera;
+    public bool MoveByRootMotion;
 
     [Header("Settings")]
     public float MaxStableMoveSpeed = 5;
@@ -259,22 +260,29 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
 
         if (Motor.GroundingStatus.IsStableOnGround)
         {
-            //SPEED
-            var speedFactor = _input.magnitude * (IsSprinting ? 2.0f : 1.0f) * SpeedMultiplier;
-
-            if (HasTarget)
+            if (MoveByRootMotion)
             {
-                SpeedFactorForward = speedFactor * _inputAdopted.normalized.y;
-                SpeedFactorSideways = speedFactor * _inputAdopted.normalized.x;
+                currentVelocity = _rootMotionPositionDelta / deltaTime;
             }
             else
             {
-                SpeedFactorForward = speedFactor;
-                SpeedFactorSideways = 0f;
-            }
+                //SPEED
+                var speedFactor = _input.magnitude * (IsSprinting ? 2.0f : 1.0f) * SpeedMultiplier;
 
-            //POSITION
-            currentVelocity = Vector3.Lerp(currentVelocity, _moveDirection * speedFactor * MaxStableMoveSpeed, 1 - Mathf.Exp(-StableMovementSharpness * deltaTime));
+                if (HasTarget)
+                {
+                    SpeedFactorForward = speedFactor * _inputAdopted.normalized.y;
+                    SpeedFactorSideways = speedFactor * _inputAdopted.normalized.x;
+                }
+                else
+                {
+                    SpeedFactorForward = speedFactor;
+                    SpeedFactorSideways = 0f;
+                }
+
+                //POSITION
+                currentVelocity = Vector3.Lerp(currentVelocity, _moveDirection * speedFactor * MaxStableMoveSpeed, 1 - Mathf.Exp(-StableMovementSharpness * deltaTime));
+            }
         }
 
         if (_internalVelocityAdd.sqrMagnitude > 0f)
