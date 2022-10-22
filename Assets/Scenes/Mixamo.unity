@@ -941,6 +941,62 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257475411}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1272053762
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1272053763}
+  - component: {fileID: 1272053765}
+  m_Layer: 0
+  m_Name: Actor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1272053763
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272053762}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1601704494}
+  m_Father: {fileID: 1491449223}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1272053765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272053762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd036bf22ffa3824a8a6a1c5e3b091cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Character: {fileID: 1491449222}
+  ActionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  ActionEnded:
+    m_PersistentCalls:
+      m_Calls: []
+  ActionsChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  Timeout: 1
 --- !u!1 &1491449216
 GameObject:
   m_ObjectHideFlags: 0
@@ -957,6 +1013,7 @@ GameObject:
   - component: {fileID: 1491449218}
   - component: {fileID: 1491449217}
   - component: {fileID: 1491449224}
+  - component: {fileID: 1491449225}
   m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
@@ -1010,7 +1067,19 @@ MonoBehaviour:
     m_ActionId: 688ee4f3-c6b6-4944-b207-9acf26b41f70
     m_ActionName: Default/Sprint[/Keyboard/leftShift]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1601704495}
+        m_TargetAssemblyTypeName: AdventureCore.CharacterActionBase, AdventureCore
+        m_MethodName: Input
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 406e13fa-cf67-4240-b477-d7d9e3537572
     m_ActionName: Default/Jump[/Keyboard/space]
   m_NeverAutoSwitchControlSchemes: 0
@@ -1112,7 +1181,7 @@ MonoBehaviour:
   StableMovementSharpness: 15
   OrientationSharpness: 30
   JumpUpSpeed: 20
-  Gravity: {x: 0, y: -100, z: 0}
+  Gravity: {x: 0, y: -50, z: 0}
 --- !u!114 &1491449222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1131,10 +1200,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   MessageEvents: []
-  ResourcePool: {fileID: 0}
+  ResourcePool: {fileID: 1491449225}
   AttributePool: {fileID: 0}
   EffectPool: {fileID: 0}
-  Actor: {fileID: 0}
+  Actor: {fileID: 1272053765}
   Movement: {fileID: 1491449221}
   Inventory: {fileID: 0}
 --- !u!4 &1491449223
@@ -1150,6 +1219,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 943399400}
+  - {fileID: 1272053763}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
@@ -1165,6 +1235,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d12eecacf7829f47b080546a0120204, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1491449225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1491449216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fb1f29af7fe1c244b0924901b711555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Persister: {fileID: 0}
+  PersistenceInterval: 1
+  BarTarget: {fileID: 0}
+  Values: []
+  Changed:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1494359497
 GameObject:
   m_ObjectHideFlags: 0
@@ -1360,6 +1449,72 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1601704493
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1601704494}
+  - component: {fileID: 1601704495}
+  m_Layer: 0
+  m_Name: Jump
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1601704494
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1601704493}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1272053763}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1601704495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1601704493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ce67e874d6902345a1f77ad6a8ebc36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Instructions: []
+  Owner: {fileID: 1272053765}
+  InputType: 0
+  Next: {fileID: 0}
+  MessageReceived:
+    m_PersistentCalls:
+      m_Calls: []
+  MessageEvents: []
+  Starting:
+    m_PersistentCalls:
+      m_Calls: []
+  Ending:
+    m_PersistentCalls:
+      m_Calls: []
+  TriggerName: Jump
+  Release: 0
+  AlignCharacter: 0
+  PropelCharacter: {x: 0, y: 15, z: 0}
+  Costs: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &2086736754
 GameObject:
   m_ObjectHideFlags: 0
