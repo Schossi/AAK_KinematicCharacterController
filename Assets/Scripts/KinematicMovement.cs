@@ -21,11 +21,6 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
 
     public Vector3 Gravity = new Vector3(0, -30f, 0);
 
-    public float SpeedFactorForward { get; private set; }
-    public float SpeedFactorSideways { get; private set; }
-    public bool IsGrounded => Time.frameCount < 5 || Motor.GroundingStatus.IsStableOnGround;
-    public bool IsSprinting { get; private set; }
-
     public event Action<float> Fallen;
 
     private bool _wasSprintingSuspended;
@@ -146,22 +141,10 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
         get => Motor.TransientRotation; set => Motor.SetRotation(value);
     }
 
-    public override void Align(Vector3 direction)
-    {
-        base.Align(direction);
-
-        StartCoroutine(alignCharacter(direction));
-    }
-    public override void AlignToInput()
-    {
-        base.AlignToInput();
-
-        StartCoroutine(alignCharacter(_inputDirection));
-    }
+    public override void Align(Vector3 direction) => StartCoroutine(alignCharacter(direction));
+    public override void AlignToInput() => StartCoroutine(alignCharacter(_inputDirection));
     public override void AlignToTarget()
     {
-        base.AlignToTarget();
-
         if (Target)
             StartCoroutine(alignCharacter(Target.position - transform.position));
         else
@@ -180,21 +163,20 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
         }, () => _isAligning = false, 0.1f, true);
     }
 
-    public override void MoveCharacter(Transform target)
+    public override void TeleportCharacter(Vector3 position, Quaternion rotation)
     {
-        base.MoveCharacter(transform);
-
-        StartCoroutine(moveCharacter(target));
+        Motor.SetPositionAndRotation(position, rotation);
     }
-    private IEnumerator moveCharacter(Transform target)
+
+    public override void MoveCharacter(Vector3 position, Quaternion rotation) => StartCoroutine(moveCharacter(position, rotation));
+    private IEnumerator moveCharacter(Vector3 position, Quaternion rotation)
     {
         var startPosition = Position;
         var startRotation = Rotation;
 
         return tween(t =>
         {
-            Position = Vector3.Slerp(startPosition, target.position, t);
-            Rotation = Quaternion.Slerp(startRotation, target.rotation, t);
+            Motor.SetPositionAndRotation(Vector3.Slerp(startPosition, position, t), Quaternion.Slerp(startRotation, rotation, t));
         }, null, 0.1f, true);
     }
 
@@ -204,6 +186,7 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
 
         AddVelocity(value);
     }
+
     public override void ApplyRootMotion(Animator animator)
     {
         base.ApplyRootMotion(animator);
@@ -307,6 +290,8 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
 
     public void PostGroundingUpdate(float deltaTime)
     {
+        IsGrounded = Time.frameCount < 5 || Motor.GroundingStatus.IsStableOnGround;
+
         if (Motor.GroundingStatus.IsStableOnGround && !Motor.LastGroundingStatus.IsStableOnGround)
         {
             //landing
