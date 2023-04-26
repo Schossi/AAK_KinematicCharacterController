@@ -1,8 +1,8 @@
 using AdventureCore;
 using KinematicCharacterController;
-using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 public class KinematicMovement : MovementBasePersisted, ICharacterController
@@ -21,7 +21,7 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
 
     public Vector3 Gravity = new Vector3(0, -30f, 0);
 
-    public event Action<float> Fallen;
+    public UnityEvent<float> Fallen;
 
     private bool _wasSprintingSuspended;
     private bool _isSprintingSuspended;
@@ -168,8 +168,7 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
         Motor.SetPositionAndRotation(position, rotation);
     }
 
-    public override void MoveCharacter(Vector3 position, Quaternion rotation) => StartCoroutine(moveCharacter(position, rotation));
-    private IEnumerator moveCharacter(Vector3 position, Quaternion rotation)
+    protected override IEnumerator moveCharacter(Vector3 position, Quaternion rotation)
     {
         var startPosition = Position;
         var startRotation = Rotation;
