@@ -432,6 +432,66 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
+--- !u!1 &799639241
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 799639244}
+  - component: {fileID: 799639243}
+  - component: {fileID: 799639242}
+  m_Layer: 0
+  m_Name: VisualScripting SceneVariables
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &799639242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 799639241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 765181c9ef4b24d32a4f7cbd2ef370dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &799639243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 799639241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e741851cba3ad425c91ecf922cc6b379, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+    _json: '{"declarations":{"Kind":"Scene","collection":{"$content":[],"$version":"A"},"$version":"A"}}'
+    _objectReferences: []
+--- !u!4 &799639244
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 799639241}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &943399399
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -768,15 +828,34 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   TriggerName: Roll
+  CharacterAnimation:
+    Clip: {fileID: 0}
+    Controller: {fileID: 0}
+    Delay: 0
+    Speed: 1
+    LeadIn: 0.1
+    LeadOut: 0.1
+    Weight: 1
+    Mask: {fileID: 0}
+    Additive: 0
+    Instructions: []
+    Messages: []
+    Loop: 0
+    StartTime: 0
+    EndTime: 1
+    StartState: 
+    EndState: 
   Release: 0
   AlignCharacter: 0
   PropelCharacter: {x: 0, y: 0, z: 0}
+  OnlyGrounded: 0
   Costs: []
   references:
     version: 2
     RefIds:
     - rid: 1202235106124627968
       type: {class: SuspendMovementInstruction, ns: AdventureCore, asm: AdventureCore}
+      data: 
 --- !u!1 &1092358754
 GameObject:
   m_ObjectHideFlags: 0
@@ -1082,8 +1161,9 @@ GameObject:
   - component: {fileID: 1491449219}
   - component: {fileID: 1491449218}
   - component: {fileID: 1491449217}
-  - component: {fileID: 1491449224}
   - component: {fileID: 1491449225}
+  - component: {fileID: 1491449227}
+  - component: {fileID: 1491449226}
   m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
@@ -1118,8 +1198,8 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1491449222}
-        m_TargetAssemblyTypeName: MixamoCharacter, AdventureKinematic
+      - m_Target: {fileID: 1491449221}
+        m_TargetAssemblyTypeName: KinematicMovement, AdventureKinematic
         m_MethodName: OnMove
         m_Mode: 0
         m_Arguments:
@@ -1133,7 +1213,19 @@ MonoBehaviour:
     m_ActionId: 08e93e04-60a5-438c-ad2e-8fca2d7d5d74
     m_ActionName: Default/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1491449221}
+        m_TargetAssemblyTypeName: KinematicMovement, AdventureKinematic
+        m_MethodName: OnSprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 688ee4f3-c6b6-4944-b207-9acf26b41f70
     m_ActionName: Default/Sprint[/Keyboard/leftShift]
   - m_PersistentCalls:
@@ -1257,9 +1349,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 659aea579c6a8ea46a1deffc6e7fa798, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Persister: {fileID: 1491449224}
+  Persister: {fileID: 0}
   Interval: 1
   CameraPivot: {fileID: 0}
+  Persisted:
+    m_PersistentCalls:
+      m_Calls: []
   Motor: {fileID: 1491449220}
   Camera: {fileID: 0}
   MoveByRootMotion: 1
@@ -1268,6 +1363,16 @@ MonoBehaviour:
   OrientationSharpness: 30
   JumpUpSpeed: 20
   Gravity: {x: 0, y: -50, z: 0}
+  SprintingSpeedMultiplier: 2
+  Jumping:
+    m_PersistentCalls:
+      m_Calls: []
+  Fallen:
+    m_PersistentCalls:
+      m_Calls: []
+  Teleported:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &1491449222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1277,7 +1382,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1491449216}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8814241aa0bd1e7459566074cbbf3a75, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d749817e07c1734fa73a84d314abb46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Animator: {fileID: 943399403}
@@ -1289,6 +1394,12 @@ MonoBehaviour:
   ResourcePool: {fileID: 1491449225}
   AttributePool: {fileID: 0}
   EffectPool: {fileID: 0}
+  Damaging:
+    m_PersistentCalls:
+      m_Calls: []
+  Damaged:
+    m_PersistentCalls:
+      m_Calls: []
   Actor: {fileID: 1272053765}
   Movement: {fileID: 1491449221}
   Inventory: {fileID: 0}
@@ -1309,18 +1420,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
---- !u!114 &1491449224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1491449216}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d12eecacf7829f47b080546a0120204, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1491449225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1340,6 +1439,36 @@ MonoBehaviour:
   Changed:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1491449226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1491449216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2fe5546f775c47d2820aa5e8a715f53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+    _json: '{"nest":{"source":"Embed","macro":null,"embed":{"variables":{"Kind":"Flow","collection":{"$content":[],"$version":"A"},"$version":"A"},"controlInputDefinitions":[],"controlOutputDefinitions":[],"valueInputDefinitions":[],"valueOutputDefinitions":[],"title":"","summary":null,"pan":{"x":138.0,"y":181.0},"zoom":1.0,"elements":[{"coroutine":false,"defaultValues":{},"position":{"x":-204.0,"y":60.0},"guid":"de9fa631-2624-4a25-ac74-c94b4cd73797","$version":"A","$type":"Unity.VisualScripting.Update","$id":"10"},{"defaultValues":{},"position":{"x":-276.0,"y":168.0},"guid":"e887fff3-d121-4699-b65e-48d30f3e3ea2","$version":"A","$type":"AdventureCore.VisualScripting.MovementInfoUnit","$id":"12"},{"defaultValues":{"Name":{"$content":"Grounded","$type":"System.String"},"Value":{"$content":false,"$type":"System.Boolean"}},"position":{"x":180.0,"y":60.0},"guid":"9f7afa2b-1b46-403c-8070-fffb8c93cd28","$version":"A","$type":"AdventureCore.VisualScripting.SetCharacterBoolUnit","$id":"14"},{"defaultValues":{"Name":{"$content":"Speed","$type":"System.String"},"Value":{"$content":0.0,"$type":"System.Single"}},"position":{"x":-36.0,"y":60.0},"guid":"438994d5-77ee-4195-b562-43c3032eee49","$version":"A","$type":"AdventureCore.VisualScripting.SetCharacterFloatUnit","$id":"16"},{"sourceUnit":{"$ref":"10"},"sourceKey":"trigger","destinationUnit":{"$ref":"16"},"destinationKey":"Input","guid":"13e278ad-016f-45af-861f-302ba573095a","$type":"Unity.VisualScripting.ControlConnection"},{"sourceUnit":{"$ref":"16"},"sourceKey":"Output","destinationUnit":{"$ref":"14"},"destinationKey":"Input","guid":"4705112d-9239-41bf-9778-0210ad6a0eaa","$type":"Unity.VisualScripting.ControlConnection"},{"sourceUnit":{"$ref":"12"},"sourceKey":"IsGrounded","destinationUnit":{"$ref":"14"},"destinationKey":"Value","guid":"938848c7-3586-4d59-8615-6f4af970757f","$type":"Unity.VisualScripting.ValueConnection"},{"sourceUnit":{"$ref":"12"},"sourceKey":"SpeedFactorForward","destinationUnit":{"$ref":"16"},"destinationKey":"Value","guid":"0aa54140-7cf4-4d47-a2e3-76748548b586","$type":"Unity.VisualScripting.ValueConnection"}],"$version":"A"}}}'
+    _objectReferences: []
+--- !u!114 &1491449227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1491449216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e741851cba3ad425c91ecf922cc6b379, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+    _json: '{"declarations":{"Kind":"Object","collection":{"$content":[],"$version":"A"},"$version":"A"}}'
+    _objectReferences: []
 --- !u!1 &1494359497
 GameObject:
   m_ObjectHideFlags: 0
@@ -1594,9 +1723,27 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   TriggerName: Jump
+  CharacterAnimation:
+    Clip: {fileID: 0}
+    Controller: {fileID: 0}
+    Delay: 0
+    Speed: 1
+    LeadIn: 0.1
+    LeadOut: 0.1
+    Weight: 1
+    Mask: {fileID: 0}
+    Additive: 0
+    Instructions: []
+    Messages: []
+    Loop: 0
+    StartTime: 0
+    EndTime: 1
+    StartState: 
+    EndState: 
   Release: 0
   AlignCharacter: 0
   PropelCharacter: {x: 0, y: 15, z: 0}
+  OnlyGrounded: 0
   Costs: []
   references:
     version: 2

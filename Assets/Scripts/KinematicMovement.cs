@@ -18,6 +18,7 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
     public float OrientationSharpness = 10;
     public float JumpUpSpeed = 10f;
     public Vector3 Gravity = new Vector3(0, -30f, 0);
+    public float SprintingSpeedMultiplier = 2f;
     [Header("Events")]
     [Tooltip("fired when starting a jump")]
     public UnityEvent Jumping;
@@ -45,6 +46,22 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
             }
         }
     }
+
+    public override bool IsSprinting
+    {
+        get
+        {
+            return base.IsSprinting;
+        }
+
+        protected set
+        {
+            base.IsSprinting = value;
+            setRootMotionFactors();
+        }
+    }
+
+    public float CurrentSprintingMultiplier => IsSprinting ? SprintingSpeedMultiplier : 1f;
 
     private Vector3 _lastGrounded;
 
@@ -97,30 +114,12 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
     {
         _input = value;
 
+        setRootMotionFactors();
+
         if (_input == Vector2.zero)
-        {
-            SpeedFactorForward = 0f;
-            SpeedFactorSideways = 0f;
-        }
-        else
-        {
-            if (MoveByRootMotion)
-            {
-                if (HasTarget)
-                {
-                    SpeedFactorForward = _input.normalized.y;
-                    SpeedFactorSideways = _input.normalized.x;
-                }
-                else
-                {
-                    SpeedFactorForward = _input.normalized.magnitude;
-                    SpeedFactorSideways = 0f;
-                }
-            }
+            return;
 
-            _inputAdopted = _input;
-
-        }
+        _inputAdopted = _input;
     }
 
     public void OnSprint(InputAction.CallbackContext callbackContext) => OnSprint(callbackContext.ReadValueAsButton());
@@ -150,7 +149,32 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
             Jumping?.Invoke();
             AddVelocity(Motor.CharacterUp * JumpUpSpeed);
         }
-    }    
+    }
+
+    private void setRootMotionFactors()
+    {
+        if (!MoveByRootMotion)
+            return;
+
+        if (_input == Vector2.zero)
+        {
+            SpeedFactorForward = 0f;
+            SpeedFactorSideways = 0f;
+        }
+        else
+        {
+            if (HasTarget)
+            {
+                SpeedFactorForward = _input.normalized.y * CurrentSprintingMultiplier * SpeedMultiplier;
+                SpeedFactorSideways = _input.normalized.x * CurrentSprintingMultiplier * SpeedMultiplier;
+            }
+            else
+            {
+                SpeedFactorForward = _input.normalized.magnitude * CurrentSprintingMultiplier * SpeedMultiplier;
+                SpeedFactorSideways = 0f;
+            }
+        }
+    }
     #endregion
 
     #region MovementBase
@@ -277,7 +301,7 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
             else
             {
                 //SPEED
-                var speedFactor = _input.magnitude * (IsSprinting ? 2.0f : 1.0f) * SpeedMultiplier;
+                var speedFactor = _input.magnitude * CurrentSprintingMultiplier * SpeedMultiplier;
 
                 if (HasTarget)
                 {
