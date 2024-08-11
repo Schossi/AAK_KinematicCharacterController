@@ -9,6 +9,8 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Mm]emoryCaptures/
+/UIElementsSchema/
+/UserSettings/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
@@ -64,3 +66,9 @@ crashlytics-build.properties
 
 /Assets/KinematicCharacterController
 /Assets/KinematicCharacterController.meta
+
+Assets/Unity.VisualScripting.Generated/
+Assets/Unity.VisualScripting.Generated.meta
+
+/Assets/TextMesh Pro
+/Assets/TextMesh Pro.meta
