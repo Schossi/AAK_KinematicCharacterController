@@ -27,3 +27,6 @@ Character from mixamo that is moved using root motion.
 
 - Souls
 Variant of the general debug scenes from the souls demo but the movement of the character has been replaced with the KinematicMovement.
+
+- Hero
+Same as Souls but for the hero demo
