@@ -25,11 +25,11 @@ TagManager:
   - EnemyDamage
   - 
   - 
-  - 
+  - Neutral
   - 
   - NeutralDamage
   - 
-  - 
+  - Barrier
   - Decoration
   - Trigger
   - 
