@@ -27,42 +27,6 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
     [Tooltip("called whenever the character is moved instantly to another spot by teleporting, can be used to reset things like the camera")]
     public UnityEvent Teleported;
 
-    private bool _wasSprintingSuspended;
-    private bool _isSprintingSuspended;
-    public bool IsSprintingSuspended
-    {
-        get
-        {
-            return _isSprintingSuspended;
-        }
-        set
-        {
-            _isSprintingSuspended = value;
-
-            if (value)
-            {
-                _wasSprintingSuspended = true;
-                IsSprinting = false;
-            }
-        }
-    }
-
-    public override bool IsSprinting
-    {
-        get
-        {
-            return base.IsSprinting;
-        }
-
-        protected set
-        {
-            base.IsSprinting = value;
-            setRootMotionFactors();
-        }
-    }
-
-    public float CurrentSprintingMultiplier => IsSprinting ? SprintingSpeedMultiplier : 1f;
-
     private Vector3 _lastGrounded;
 
     private Vector2 _input;
@@ -150,31 +114,6 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
             AddVelocity(Motor.CharacterUp * JumpUpSpeed);
         }
     }
-
-    private void setRootMotionFactors()
-    {
-        if (!MoveByRootMotion)
-            return;
-
-        if (_input == Vector2.zero)
-        {
-            SpeedFactorForward = 0f;
-            SpeedFactorSideways = 0f;
-        }
-        else
-        {
-            if (HasTarget)
-            {
-                SpeedFactorForward = _input.normalized.y * CurrentSprintingMultiplier * SpeedMultiplier;
-                SpeedFactorSideways = _input.normalized.x * CurrentSprintingMultiplier * SpeedMultiplier;
-            }
-            else
-            {
-                SpeedFactorForward = _input.normalized.magnitude * CurrentSprintingMultiplier * SpeedMultiplier;
-                SpeedFactorSideways = 0f;
-            }
-        }
-    }
     #endregion
 
     #region MovementBase
@@ -185,6 +124,61 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
     public override Quaternion Rotation
     {
         get => Motor.TransientRotation; set => Motor.SetRotation(value);
+    }
+
+    public override Vector3 Direction
+    {
+        get
+        {
+            if (Camera)
+                return Quaternion.AngleAxis(Camera.eulerAngles.y, Vector3.up) * new Vector3(_input.x, 0, _input.y);
+            else
+                return new Vector3(_input.x, 0, _input.y);
+        }
+    }
+    public override Vector3 Velocity => Motor.Velocity;
+
+    private bool _wasSprintingSuspended;
+    private bool _isSprintingSuspended;
+    public bool IsSprintingSuspended
+    {
+        get
+        {
+            return _isSprintingSuspended;
+        }
+        set
+        {
+            _isSprintingSuspended = value;
+
+            if (value)
+            {
+                _wasSprintingSuspended = true;
+                IsSprinting = false;
+            }
+        }
+    }
+
+    public override bool IsSprinting
+    {
+        get
+        {
+            return base.IsSprinting;
+        }
+
+        protected set
+        {
+            base.IsSprinting = value;
+            setRootMotionFactors();
+        }
+    }
+
+    public float CurrentSprintingMultiplier => IsSprinting ? SprintingSpeedMultiplier : 1f;
+
+    public override void ResetInput()
+    {
+        base.ResetInput();
+
+        _inputDirection = transform.forward;
     }
 
     public override void Align(Vector3 direction) => StartCoroutine(alignCharacter(direction));
@@ -239,6 +233,31 @@ public class KinematicMovement : MovementBasePersisted, ICharacterController
 
         _rootMotionPositionDelta += animator.deltaPosition;
         _rootMotionRotationDelta = animator.deltaRotation * _rootMotionRotationDelta;
+    }
+
+    private void setRootMotionFactors()
+    {
+        if (!MoveByRootMotion)
+            return;
+
+        if (_input == Vector2.zero)
+        {
+            SpeedFactorForward = 0f;
+            SpeedFactorSideways = 0f;
+        }
+        else
+        {
+            if (HasTarget)
+            {
+                SpeedFactorForward = _input.normalized.y * CurrentSprintingMultiplier * SpeedMultiplier;
+                SpeedFactorSideways = _input.normalized.x * CurrentSprintingMultiplier * SpeedMultiplier;
+            }
+            else
+            {
+                SpeedFactorForward = _input.normalized.magnitude * CurrentSprintingMultiplier * SpeedMultiplier;
+                SpeedFactorSideways = 0f;
+            }
+        }
     }
     #endregion
 
